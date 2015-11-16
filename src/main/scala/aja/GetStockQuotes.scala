@@ -41,11 +41,12 @@ object GetStockQuotes extends App {
     // print the results to stdout
     for ((symbol, price) <- results) {
         // "1000.50".length = 7, "75.00".length=5
-        val symbolPaddingLength = 8 - symbol.length
-        val pricePaddingLength = 7 - price.length
+        val symbolPaddingLength = 13 - symbol.length
+        val pricePaddingLength = 12 - price.length
         val symbolPadded = symbol + " " * symbolPaddingLength
         val pricePrePadded = " " * pricePaddingLength + price
-        println(s"$symbolPadded" + pricePrePadded + "\n")
+        println(" " * 25)
+        println(s"$symbolPadded" + pricePrePadded)
     }
 
     def getStocks(stocksJsonString: String): Array[Stock] = {
