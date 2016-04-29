@@ -34,20 +34,23 @@ object GetStockQuotes extends App {
                 val price = StockUtils.extractPriceFromHtml(contents, stock.symbol)
                 (stock, price)
             }
-            case None => (stock, "Error Retrieving")
+            case None => (stock, "Error")
         }
     }
 
+    // i think my RadioPi display is 40 chars wide
     // print the results to stdout
     for ((stock, price) <- results) {
         // "1000.50".length = 7, "75.00".length=5
-        val symbolPaddingLength = 8 - stock.symbol.length  // will be displayed left-justified within 8 chars
-        val pricePaddingLength = 9 - price.length         // will be displayed right-justified within 9 chars
+        val symbolPaddingLength = 7 - stock.symbol.length  // will be displayed left-justified within 7 chars
+        val pricePaddingLength = 9 - price.length          // will be displayed right-justified within 9 chars
+        val notesPaddingLength = 19 - stock.notes.length   // total field width is 24 chars (4 spaces before, '.' after)
         val symbolPadded = stock.symbol + " " * symbolPaddingLength
         val pricePrePadded = " " * pricePaddingLength + price
+        val notesPostPadded = stock.notes + " " * notesPaddingLength + "."
         // add spaces here so the Radio Pi display might scroll slower
         println(" " * 40)
-        println(s"$symbolPadded" + pricePrePadded + "    " + stock.notes)
+        println(s"$symbolPadded" + pricePrePadded + "    " + notesPostPadded)
     }
 
     def getStocks(stocksJsonString: String): Array[Stock] = {
