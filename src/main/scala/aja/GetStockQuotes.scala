@@ -9,8 +9,8 @@ import scala.collection.mutable.ArrayBuffer
 
 /**
  * The goals here are (a) to get a config filename from STDIN, (b) read the config
- * file, which is assumed to have JSON like TestData.stocks, (c) retrieve the stock quotes,
- * and (d) print those results to STDOUT in a TBD format.
+ * file, which is assumed to have JSON data formatted like TestData.scala, 
+ * (c) retrieve the stock quotes, and (d) print those results to STDOUT in a TBD format.
  */
 object GetStockQuotes extends App {
     
@@ -20,11 +20,11 @@ object GetStockQuotes extends App {
 
     // setup
     implicit val formats = DefaultFormats // for json handling
-    case class Stock(val symbol: String, val name: String)
+    case class Stock(symbol: String, name: String, notes: String)
     
     // read the config file (/Users/al/Projects/Scala/StockQuotes/stocks.conf)
-    val jsonData = getFileContentsAsString(configFilename)
-    val listOfStocks: Array[Stock]= getStocks(jsonData)
+    val jsonConfigData = getFileContentsAsString(configFilename)
+    val listOfStocks: Array[Stock]= getStocks(jsonConfigData)
     
     // get the data/results from yahoo
     val results = for (stock <- listOfStocks) yield {
@@ -32,21 +32,22 @@ object GetStockQuotes extends App {
         html match {
             case Some(contents) => {
                 val price = StockUtils.extractPriceFromHtml(contents, stock.symbol)
-                (stock.symbol, price)
+                (stock, price)
             }
-            case None => (stock.symbol, "Unknown")
+            case None => (stock, "Error Retrieving")
         }
     }
 
     // print the results to stdout
-    for ((symbol, price) <- results) {
+    for ((stock, price) <- results) {
         // "1000.50".length = 7, "75.00".length=5
-        val symbolPaddingLength = 13 - symbol.length
-        val pricePaddingLength = 12 - price.length
-        val symbolPadded = symbol + " " * symbolPaddingLength
+        val symbolPaddingLength = 8 - stock.symbol.length  // will be displayed left-justified within 8 chars
+        val pricePaddingLength = 9 - price.length         // will be displayed right-justified within 9 chars
+        val symbolPadded = stock.symbol + " " * symbolPaddingLength
         val pricePrePadded = " " * pricePaddingLength + price
-        println(" " * 25)
-        println(s"$symbolPadded" + pricePrePadded)
+        // add spaces here so the Radio Pi display might scroll slower
+        println(" " * 40)
+        println(s"$symbolPadded" + pricePrePadded + "    " + stock.notes)
     }
 
     def getStocks(stocksJsonString: String): Array[Stock] = {

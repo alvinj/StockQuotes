@@ -5,6 +5,36 @@ The purpose of this project is to create a “stock quotes” module for
 my Radio Pi project.
 
 
+Running/Testing in Eclipse
+--------------------------
+
+I don't have a formal test structure set up here, in part because the way this works
+is that it calls out to Yahoo to get the current stock price, and I don't have any
+interest in mocking that up.
+
+For me to run this in Eclipse, I go to Run Configurations and add this value to the
+"Arguments" section:
+
+    /Users/al/Projects/Scala/StockQuotes/stocks.conf
+
+Then when I run the app in Eclipse, it uses that file as a command-line argument.
+That file needs to contain config data that looks like this:
+
+````
+{
+  "stocks": [
+      { "stock": { "symbol": "AAPL",  "name": "Apple",    "notes": "buy at $93" }},
+      { "stock": { "symbol": "CMG",   "name": "Chipotle", "notes": "buy soon ($420?)"}},
+      { "stock": { "symbol": "VLKAY", "name": "VW",       "notes": "bought ~$32"}},
+      { "stock": { "symbol": "WMT",   "name": "Walmart",  "notes": "buy at $6-65"}}
+  ]
+}
+````
+
+In you know Scala and JSON, and read the following section, hopefully everything else 
+about this project will make sense.
+
+
 Information
 -----------
 
@@ -29,11 +59,11 @@ That script is made executable, and run with a crontab entry like this:
 	1,31 6-15 * * 1-5 /var/www/radio/scripts/stocks/run_stocks.sh > /var/www/radio/data/stocks.out 2>&1
 
 
-Making the requests run in parallel
------------------------------------
+Future: Making the requests run in parallel
+-------------------------------------------
 
 If it ever becomes a problem where I want/need to run the requests in parallel,
-this code should do the trick:
+code like this should do the trick:
 
 	import akka.actor.ActorSystem
 	import scala.concurrent.{ Await, Future }
